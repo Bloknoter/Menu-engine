@@ -14,59 +14,101 @@ namespace MenuEngine.EditorScripts
 
         private SerializedProperty pages;
 
+        private GUIContent deleteIcon;
+        private GUIContent addIcon;
+        private GUIContent addTransitionIcon;
+        private GUIContent pageIcon;
+        private GUIContent errorIcon;
+        private GUIContent warningIcon;
+        private GUIContent transitionIcon;
+
         private void OnEnable()
         {
             StartPageName = serializedObject.FindProperty("StartPageName");
             pages = serializedObject.FindProperty("pages");
+
+            deleteIcon = EditorGUIUtility.IconContent("d_TreeEditor.Trash");
+            deleteIcon.tooltip = "delete";
+            addIcon = EditorGUIUtility.IconContent("d_CreateAddNew");
+            addIcon.tooltip = "add";
+            addTransitionIcon = EditorGUIUtility.IconContent("CreateAddNew");
+            addTransitionIcon.tooltip = "add new transition";
+            pageIcon = EditorGUIUtility.IconContent("d_UnityEditor.ConsoleWindow");
+            pageIcon.tooltip = "add new page";
+            errorIcon = EditorGUIUtility.IconContent("console.erroricon.sml");
+            errorIcon.tooltip = "fix errors!";
+            warningIcon = EditorGUIUtility.IconContent("console.warnicon.sml");
+            warningIcon.tooltip = "fix warnings!";
+            transitionIcon = EditorGUIUtility.IconContent("d_tab_next");
+            //"d_forward"
+                
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
             EditorGUILayout.HelpBox("The work with the names of pages does not depends on the string case and the spaces. \n \nBe carefull! Every name must be unique!", MessageType.Info);
+            EditorGUILayout.Separator();
             StartPageName.stringValue = EditorGUILayout.TextField("Start page", StartPageName.stringValue);
 
-            if(GUILayout.Button("Add page", GUILayout.Width(100)))
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(addIcon, GUILayout.Width(10));
+            if(GUILayout.Button(pageIcon, EditorStyles.miniButton, GUILayout.Width(50)))
             {
                 pages.InsertArrayElementAtIndex(pages.arraySize);
                 pages.GetArrayElementAtIndex(pages.arraySize - 1).FindPropertyRelative("Name").stringValue = "New page";
                 pages.GetArrayElementAtIndex(pages.arraySize - 1).FindPropertyRelative("PageObject").objectReferenceValue = null;
                 pages.GetArrayElementAtIndex(pages.arraySize - 1).FindPropertyRelative("transitions").ClearArray();
             }
+            EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.LabelField("____________________________________________________________________________");
+            EditorGUILayout.Separator();
+            EditorGUILayout.Separator();
 
             if (pages.arraySize > 0)
             {
                 
                 for(int i = 0; i < pages.arraySize;i++)
                 {
+                    EditorGUILayout.BeginVertical("Tooltip");
                     SerializedProperty page = pages.GetArrayElementAtIndex(i);
                     SerializedProperty Name = page.FindPropertyRelative("Name");
+                    SerializedProperty pageobject = page.FindPropertyRelative("PageObject");
+
+                    EditorGUILayout.BeginHorizontal();
+                    Rect rect = EditorGUILayout.GetControlRect();
+                    rect.x += 20;
+                    rect.width -= 30;
                     if (Name.stringValue == "")
-                        page.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(page.isExpanded, $"Page {i + 1}");
+                        page.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(rect, page.isExpanded, $"Page {i + 1}", EditorStyles.popup);
                     else
-                        page.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(page.isExpanded, $"{Name.stringValue}");
-                    EditorGUILayout.EndFoldoutHeaderGroup();
+                        page.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(rect, page.isExpanded, $"{Name.stringValue}", EditorStyles.popup);
+                    if(Name.stringValue == "")
+                    {
+                        EditorGUILayout.LabelField(warningIcon, GUILayout.Width(20));
+                    }
+                    if (pageobject.objectReferenceValue == null)
+                    {
+                        EditorGUILayout.LabelField(errorIcon, GUILayout.Width(20));
+                    }
+                    EditorGUI.EndFoldoutHeaderGroup();
+                    if (GUILayout.Button(deleteIcon, GUILayout.Width(50)))
+                    {
+                        pages.DeleteArrayElementAtIndex(i);
+                        i--;
+                        continue;
+                    }
+                    EditorGUILayout.EndHorizontal();
                     if (page.isExpanded)
                     {
-                        EditorGUI.indentLevel += 1;
-                        EditorGUILayout.BeginHorizontal();
                         EditorGUILayout.PropertyField(Name);
-                        if (GUILayout.Button("Delete", GUILayout.Width(80)))
-                        {
-                            pages.DeleteArrayElementAtIndex(i);
-                            i--;
-                            continue;
-                        }
-                        EditorGUILayout.EndHorizontal();
-
+                       
                         if (Name.stringValue == "")
                         {
                             EditorGUILayout.HelpBox("Name this page, or it won't work correctly", MessageType.Warning);
                         }
 
-                        SerializedProperty pageobject = page.FindPropertyRelative("PageObject");
+                        
                         EditorGUILayout.PropertyField(page.FindPropertyRelative("PageObject"), new GUIContent("Page object"));
                         if (pageobject.objectReferenceValue == null)
                         {
@@ -76,22 +118,31 @@ namespace MenuEngine.EditorScripts
                         if (pages.arraySize > 1)
                         {
                             SerializedProperty transitions = page.FindPropertyRelative("transitions");
-                            if (GUILayout.Button("Add transition", GUILayout.Width(120)))
+                            if (GUILayout.Button(addTransitionIcon, EditorStyles.miniButton, GUILayout.Width(30)))
                             {
                                 transitions.InsertArrayElementAtIndex(transitions.arraySize);
                             }
 
-
-                            EditorGUI.indentLevel += 1;
-
                             for (int t = 0; t < transitions.arraySize; t++)
                             {
+                                EditorGUILayout.BeginHorizontal();
+                                rect = EditorGUILayout.GetControlRect();
+                                rect.x += 15;
+                                rect.width -= 50;
                                 SerializedProperty transition = transitions.GetArrayElementAtIndex(t);
                                 SerializedProperty nextpage = transition.FindPropertyRelative("transition");
-                                transition.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(transition.isExpanded, $"transition: {nextpage.stringValue}");
+                                transition.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(rect, transition.isExpanded, $"{Name.stringValue} -> {nextpage.stringValue}");
                                 EditorGUILayout.EndFoldoutHeaderGroup();
+                                if (GUILayout.Button(EditorGUIUtility.IconContent("d_TreeEditor.Trash"), GUILayout.Width(40)))
+                                {
+                                    transitions.DeleteArrayElementAtIndex(t);
+                                    t--;
+                                    continue;
+                                }
+                                EditorGUILayout.EndHorizontal();
                                 if (transition.isExpanded)
                                 {
+                                    EditorGUI.indentLevel += 2;
                                     List<string> pagesnames = new List<string>();
                                     int selected = 0;
                                     for (int p = 0; p < pages.arraySize; p++)
@@ -116,12 +167,7 @@ namespace MenuEngine.EditorScripts
                                     {
                                         EditorGUILayout.LabelField("No other pages were created");
                                     }
-                                    if (GUILayout.Button("Delete", GUILayout.Width(80)))
-                                    {
-                                        transitions.DeleteArrayElementAtIndex(t);
-                                        t--;
-                                        continue;
-                                    }
+                                    
                                     EditorGUILayout.EndHorizontal();
                                     SerializedProperty type = transition.FindPropertyRelative("TransitionType");
                                     EditorGUILayout.PropertyField(type, new GUIContent("Animation"));
@@ -131,23 +177,27 @@ namespace MenuEngine.EditorScripts
                                         transitionAnimation.objectReferenceValue = EditorGUILayout.ObjectField(new GUIContent("Screen sliding animation"),
                                             transitionAnimation.objectReferenceValue, typeof(ScreenSliding), true);
                                     }
+                                    if (type.enumValueIndex == 2)
+                                    {
+                                        SerializedProperty transitionAnimation = transition.FindPropertyRelative("transitionAnimation");
+                                        transitionAnimation.objectReferenceValue = EditorGUILayout.ObjectField(new GUIContent("Custom animation"),
+                                            transitionAnimation.objectReferenceValue, typeof(TransitionAnimation), true);
+                                    }
+                                    EditorGUI.indentLevel -= 2;
                                 }
                             }
-                            EditorGUI.indentLevel -= 1;
                         }
                         
-                        EditorGUI.indentLevel -= 1;
                     }
-
-                    EditorGUILayout.LabelField("____________________________________________________________________________");
+                    EditorGUILayout.EndVertical();
+                    //EditorGUILayout.LabelField("____________________________________________________________________________");
+                    EditorGUILayout.Separator();
+                    EditorGUILayout.Separator();
+                    EditorGUILayout.Separator();
                 }
 
                 string currentpage = ((MenuController)serializedObject.targetObject).CurrentPage;
-
-                if (/*currentpage != null && currentpage != ""*/true)
-                {
-                    EditorGUILayout.LabelField($"Current page: {currentpage}");
-                }
+                EditorGUILayout.LabelField($"Current page: {currentpage}");
 
             }
 

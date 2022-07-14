@@ -27,8 +27,9 @@ namespace MenuEngine
     {
         public enum TransitionTypeEnum
         {
-            None,
-            ScreenSliding,
+            None = 0,
+            Custom = 2,
+            ScreenSliding = 1,
             //HorizontalSlide, 
             //VerticalSlide
         }

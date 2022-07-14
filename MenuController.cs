@@ -42,11 +42,6 @@ namespace MenuEngine
             currentPage.PageObject.SetActive(true);
         }
 
-        void Update()
-        {
-
-        }
-
         public void SetPage(string pageName)
         {
             for (int i = 0; i < pages.Length;i++)
@@ -86,6 +81,11 @@ namespace MenuEngine
         {
             return string1.ToLowerInvariant().Replace(" ", "").Equals(string2.ToLowerInvariant().Replace(" ", ""),
                 System.StringComparison.CurrentCultureIgnoreCase);
+        }
+
+        public void LoadScene(string scene)
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(scene);
         }
 
         public void Quit()
