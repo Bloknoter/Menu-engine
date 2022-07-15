@@ -144,11 +144,35 @@ namespace MenuEngine.EditorScripts
                                 EditorGUILayout.BeginHorizontal();
                                 rect = EditorGUILayout.GetControlRect();
                                 rect.x += 15;
-                                rect.width -= 50;
+                                rect.width -= 30;
                                 SerializedProperty transition = transitions.GetArrayElementAtIndex(t);
                                 SerializedProperty nextpage = transition.FindPropertyRelative("transition");
-                                transition.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(rect, transition.isExpanded, $"{pageName} -> {nextpage.stringValue}");
+                                transition.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(rect, transition.isExpanded, $"settings");
+                                EditorGUILayout.LabelField("->", GUILayout.Width(20));
                                 EditorGUILayout.EndFoldoutHeaderGroup();
+                                List<string> pagesnames = new List<string>();
+                                int selected = 0;
+                                for (int p = 0; p < pages.arraySize; p++)
+                                {
+                                    SerializedProperty otherName = pages.GetArrayElementAtIndex(p).FindPropertyRelative("Name");
+                                    if (otherName.stringValue != "" && otherName.stringValue != pageName)
+                                    {
+                                        pagesnames.Add(otherName.stringValue);
+                                        if (nextpage.stringValue != "" && nextpage.stringValue == otherName.stringValue)
+                                        {
+                                            selected = pagesnames.Count - 1;
+                                        }
+                                    }
+                                }
+                                if (pagesnames.Count > 0)
+                                {
+                                    int id = EditorGUILayout.IntPopup(selected, pagesnames.ToArray(), null);
+                                    nextpage.stringValue = pagesnames[id];
+                                }
+                                else
+                                {
+                                    EditorGUILayout.LabelField("No other pages were created");
+                                }
                                 if (GUILayout.Button(EditorGUIUtility.IconContent("d_TreeEditor.Trash"), GUILayout.Width(40)))
                                 {
                                     transitions.DeleteArrayElementAtIndex(t);
@@ -159,7 +183,7 @@ namespace MenuEngine.EditorScripts
                                 if (transition.isExpanded)
                                 {
                                     EditorGUI.indentLevel += 2;
-                                    List<string> pagesnames = new List<string>();
+                                    /*List<string> pagesnames = new List<string>();
                                     int selected = 0;
                                     for (int p = 0; p < pages.arraySize; p++)
                                     {
@@ -173,7 +197,6 @@ namespace MenuEngine.EditorScripts
                                             }
                                         }
                                     }
-                                    EditorGUILayout.BeginHorizontal();
                                     if (pagesnames.Count > 0)
                                     {
                                         int id = EditorGUILayout.IntPopup("transition to page", selected, pagesnames.ToArray(), null);
@@ -182,9 +205,8 @@ namespace MenuEngine.EditorScripts
                                     else
                                     {
                                         EditorGUILayout.LabelField("No other pages were created");
-                                    }
+                                    }*/
                                     
-                                    EditorGUILayout.EndHorizontal();
                                     SerializedProperty hideCurrent = transition.FindPropertyRelative("hideCurrent");
                                     hideCurrent.boolValue = EditorGUILayout.Toggle("Hide current page", hideCurrent.boolValue);
                                     SerializedProperty type = transition.FindPropertyRelative("TransitionType");
