@@ -13,13 +13,11 @@ Main, Lobby, Settings, Credits
 You need to create empty GameObject as Canvas child for every page you want to add. Then, while creating elements for some page, make this elements
 as children to the page object.
 
-In Menu Controller you can add, remove and edit pages. Every page must have a special unique name, so it could be identified. Also every page requires
-a link to the page object you alredy created.
+In Menu Controller you can add, remove and edit pages. Every page must have a special unique name. Also every page requires
+a link to the page object you have alredy created.
 
-The main engine is hidden in transitions. When you make a transition from one page to another, then you say controller to hide first page and show next.
-If you try to set page that doesn't have a transition from current, this page will be shown, but previous page WON'T be closed. It's a good way to create
-panels that don't have to close main interface, but must be closed after some work. Just don't create a transition from main page to this panel, but
-add a transition from panel to main page, so it will be closed during this transition
+The main engine is hidden in transitions between pages. You can set different parameters for every transition, such as animation and sound.
+You can even add your custom animation.
 
-Also there is an option to add some animations during the transitions, but I didn't really work on it) But you can create your custom animations deriving
-from 'AnimationTransition' class.
+If you try to set page that doesn't have transition from current page, new page just will be shown and previous won't be hidden.
+
