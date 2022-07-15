@@ -11,6 +11,6 @@ namespace MenuEngine.TransitionAnimations
         [Min(0)]
         protected float Duration;
 
-        public abstract void Animate(Page currentPage, Page nextPage);
+        public abstract void Animate(Page currentPage, Page nextPage, Transition transition);
     }
 }

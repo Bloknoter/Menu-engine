@@ -28,13 +28,38 @@ namespace MenuEngine
         public enum TransitionTypeEnum
         {
             None = 0,
-            Custom = 2,
-            ScreenSliding = 1,
-            //HorizontalSlide, 
+            Custom = 1,
+            ScreenSliding = 2,
+            //HorizontalSlide = 3, 
             //VerticalSlide
         }
         public string transition;
+        public bool hideCurrent = true;
         public TransitionTypeEnum TransitionType = TransitionTypeEnum.None;
         public TransitionAnimation transitionAnimation;
+        public AudioClip sound;
+
+        public override string ToString()
+        {
+            string result = $"Transition to '{transition}' page";
+            if (hideCurrent)
+                result += " | hide current page";
+            else
+                result += " | don't hide current page";
+
+            if (TransitionType == TransitionTypeEnum.None)
+                result += " | no animation";
+            else if (TransitionType == TransitionTypeEnum.Custom)
+                result += " | custom animation";
+            else
+                result += $" | {TransitionType} animation";
+
+            if (sound != null)
+                result += $" | sound: {sound.name}";
+            else
+                result += " | no sound";
+
+            return result;
+        }
     }
 }

@@ -27,22 +27,15 @@ namespace MenuEngine.TransitionAnimations
 
         private Page _nextPage;
 
-        void Start()
-        {
+        private Transition _transition;
 
-        }
-
-        void Update()
-        {
-
-        }
-
-        public override void Animate(Page currentPage, Page nextPage)
+        public override void Animate(Page currentPage, Page nextPage, Transition transition)
         {
             Screen.gameObject.SetActive(false);
             StopAllCoroutines();
             _currentPage = currentPage;
             _nextPage = nextPage;
+            _transition = transition;
             StartCoroutine(AnimateTransition());
         }
 
@@ -60,7 +53,8 @@ namespace MenuEngine.TransitionAnimations
                     //yield return new WaitForSecondsRealtime(DELTA_MOVEMENT_TIME);
                     yield return new WaitForFixedUpdate();
                 }
-                _currentPage.PageObject.SetActive(false);
+                if (_transition.hideCurrent)
+                    _currentPage.PageObject.SetActive(false);
                 _nextPage.PageObject.SetActive(true);
                 for (int i = 0; i < iteractionCount; i++)
                 {
@@ -82,7 +76,8 @@ namespace MenuEngine.TransitionAnimations
                     //yield return new WaitForSecondsRealtime(DELTA_MOVEMENT_TIME);
                     yield return new WaitForFixedUpdate();
                 }
-                _currentPage.PageObject.SetActive(false);
+                if (_transition.hideCurrent)
+                    _currentPage.PageObject.SetActive(false);
                 _nextPage.PageObject.SetActive(true);
                 for (int i = 0; i < iteractionCount; i++)
                 {

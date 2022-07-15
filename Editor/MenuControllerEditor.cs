@@ -16,8 +16,7 @@ namespace MenuEngine.EditorScripts
 
         private SerializedProperty pages;
 
-        private string focusedTextField = "";
-        private string previousValue = "";
+        private SerializedProperty audioSource;
 
         private GUIContent deleteIcon;
         private GUIContent addIcon;
@@ -33,6 +32,7 @@ namespace MenuEngine.EditorScripts
         {
             StartPageName = serializedObject.FindProperty("StartPageName");
             pages = serializedObject.FindProperty("pages");
+            audioSource = serializedObject.FindProperty("audioSource");
 
             deleteIcon = EditorGUIUtility.IconContent("d_TreeEditor.Trash");
             deleteIcon.tooltip = "delete";
@@ -185,6 +185,8 @@ namespace MenuEngine.EditorScripts
                                     }
                                     
                                     EditorGUILayout.EndHorizontal();
+                                    SerializedProperty hideCurrent = transition.FindPropertyRelative("hideCurrent");
+                                    hideCurrent.boolValue = EditorGUILayout.Toggle("Hide current page", hideCurrent.boolValue);
                                     SerializedProperty type = transition.FindPropertyRelative("TransitionType");
                                     EditorGUILayout.PropertyField(type, new GUIContent("Animation"));
                                     if (type.enumValueIndex == 1)
@@ -199,6 +201,8 @@ namespace MenuEngine.EditorScripts
                                         transitionAnimation.objectReferenceValue = EditorGUILayout.ObjectField(new GUIContent("Custom animation"),
                                             transitionAnimation.objectReferenceValue, typeof(TransitionAnimation), true);
                                     }
+                                    SerializedProperty sound = transition.FindPropertyRelative("sound");
+                                    sound.objectReferenceValue = EditorGUILayout.ObjectField("Sound", sound.objectReferenceValue, typeof(AudioClip), true);
                                     EditorGUI.indentLevel -= 2;
                                 }
                             }
@@ -215,9 +219,25 @@ namespace MenuEngine.EditorScripts
                     EditorGUILayout.Separator();
                 }
 
-                string currentpage = ((MenuController)serializedObject.targetObject).CurrentPage;
-                EditorGUILayout.LabelField($"Current page: {currentpage}");
+                
 
+            }
+
+            audioSource.objectReferenceValue = EditorGUILayout.ObjectField("Audio output", audioSource.objectReferenceValue, typeof(AudioSource), true);
+
+            if(pages.arraySize > 0)
+            {
+                EditorGUILayout.Separator();
+                EditorGUILayout.BeginHorizontal();
+                string currentpage = ((MenuController)serializedObject.targetObject).CurrentPage;
+                if(string.IsNullOrEmpty(currentpage))
+                {
+                    currentpage = StartPageName.stringValue;
+                }
+                EditorGUILayout.LabelField($"Current page", GUILayout.Width(100));
+                EditorGUILayout.LabelField(transitionIcon, GUILayout.Width(30));
+                EditorGUILayout.LabelField(currentpage);
+                EditorGUILayout.EndHorizontal();
             }
 
             serializedObject.ApplyModifiedProperties();

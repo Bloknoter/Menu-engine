@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace MenuEngine
 {
+    [RequireComponent(typeof(AudioSource))]
     public class MenuController : MonoBehaviour
     {
         [SerializeField]
@@ -13,7 +14,11 @@ namespace MenuEngine
         [SerializeField]
         private string StartPageName;
 
+        [SerializeField]
+        private AudioSource audioSource;
+
         private Page currentPage;
+
         public string CurrentPage
         {
             get
@@ -40,6 +45,7 @@ namespace MenuEngine
                 }
             }
             currentPage.PageObject.SetActive(true);
+            audioSource.loop = false;
         }
 
         public void SetPage(string pageName)
@@ -53,15 +59,20 @@ namespace MenuEngine
                     {
                         for (int t = 0;t < currentPage.transitions.Length;t++)
                         {
-                            if (CompareStrings(currentPage.transitions[t].transition, pageName))
-                            {
-                                if (currentPage.transitions[t].TransitionType == Transition.TransitionTypeEnum.None)
+                            Transition transition = currentPage.transitions[t];
+                            if (CompareStrings(transition.transition, pageName))
+                            {  
+                                audioSource.clip = transition.sound;
+                                if (audioSource.clip != null)
+                                    audioSource.Play();
+                                if (transition.TransitionType == Transition.TransitionTypeEnum.None)
                                 {
-                                    currentPage.PageObject.SetActive(false);
+                                    if (transition.hideCurrent)
+                                        currentPage.PageObject.SetActive(false);
                                 }
                                 else
                                 {
-                                    currentPage.transitions[t].transitionAnimation.Animate(currentPage, pages[i]);
+                                    currentPage.transitions[t].transitionAnimation.Animate(currentPage, pages[i], currentPage.transitions[t]);
                                     hastransition = true;
                                 }
                                 break;
