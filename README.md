@@ -21,5 +21,5 @@ If you try to set page that doesn't have a transition from current, this page wi
 panels that don't have to close main interface, but must be closed after some work. Just don't create a transition from main page to this panel, but
 add a transition from panel to main page, so it will be closed during this transition
 
-Also there is an option to add some animations during the transitions, but I didn't really work on it) Maybe in the future I will add new animations and
-a possibility to write custom.
+Also there is an option to add some animations during the transitions, but I didn't really work on it) But you can create your custom animations deriving
+from 'AnimationTransition' class.
